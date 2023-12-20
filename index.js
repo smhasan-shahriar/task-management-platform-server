@@ -31,6 +31,54 @@ const dbConnect = async () => {
 };
 dbConnect();
 
+const database = client.db("taskDB");
+const newTasksCollection = database.collection("newTasks");
+const usersCollection = database.collection("users");
+
+//task related API
+
+app.get("/all-to-do-tasks", async (req, res) => {
+  try {
+    const userEmail = req.query.email;
+    let queryObj = {};
+    if (userEmail) {
+      queryObj.userEmail = userEmail;
+    }
+    const result = await newTasksCollection.find(queryObj).toArray();
+    res.send(result);
+  } catch (error) {
+    console.log(error);
+  }
+});
+
+app.post("/create-new-task", async (req, res) => {
+  try {
+    const newTask = req.body;
+    const result = await newTasksCollection.insertOne(newTask);
+    res.send(result);
+  } catch (error) {
+    console.log(error);
+  }
+});
+
+//user related API
+app.post("/users", async (req, res) => {
+  try {
+    const newUser = req.body;
+    const userEmail = newUser.email;
+    const query = { email: userEmail };
+    const isExist = await usersCollection.findOne(query);
+    if (isExist) {
+      return res.send("user already exists");
+    } else {
+      const userResult = await usersCollection.insertOne(newUser);
+      return res.send(userResult);
+    }
+  } catch (error) {
+    console.log(error);
+  }
+});
+
 app.get("/", (req, res) => {
   res.send("server is running");
 });
