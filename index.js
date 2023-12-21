@@ -1,7 +1,7 @@
 const express = require("express");
 const cors = require("cors");
 const port = process.env.PORT || 5000;
-const { MongoClient, ServerApiVersion } = require("mongodb");
+const { MongoClient, ServerApiVersion, ObjectId } = require("mongodb");
 
 const app = express();
 app.use(cors());
@@ -40,9 +40,13 @@ const usersCollection = database.collection("users");
 app.get("/all-to-do-tasks", async (req, res) => {
   try {
     const userEmail = req.query.email;
+    const status = req.query.status;
     let queryObj = {};
     if (userEmail) {
       queryObj.userEmail = userEmail;
+    }
+    if(status){
+        queryObj.status = status;
     }
     const result = await newTasksCollection.find(queryObj).toArray();
     res.send(result);
@@ -60,6 +64,34 @@ app.post("/create-new-task", async (req, res) => {
     console.log(error);
   }
 });
+
+app.put("/update-task-status/:id", async (req, res) => {
+  try{
+    const id = req.params.id;
+    const updatedTask = req.body;
+    const filter = {_id: new ObjectId(id)};
+    const updateTaskStatus = {
+      $set: {
+        status: updatedTask.status
+      }
+    }
+    const result = await newTasksCollection.updateOne(filter, updateTaskStatus)
+    res.send(result)
+  } catch(error) {
+    console.log(error)
+  }
+})
+
+app.delete("/delete-task/:id", async(req, res) => {
+  try{
+    const id = req.params.id;
+    const query = {_id: new ObjectId(id)};
+    const result = await newTasksCollection.deleteOne(query);
+    res.send(result);
+  } catch (error) {
+    console.log(error);
+  }
+})
 
 //user related API
 app.post("/users", async (req, res) => {
