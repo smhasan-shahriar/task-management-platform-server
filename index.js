@@ -124,24 +124,6 @@ app.delete("/delete-task/:id", async(req, res) => {
   }
 })
 
-//user related API
-app.post("/users", async (req, res) => {
-  try {
-    const newUser = req.body;
-    const userEmail = newUser.email;
-    const query = { email: userEmail };
-    const isExist = await usersCollection.findOne(query);
-    if (isExist) {
-      return res.send("user already exists");
-    } else {
-      const userResult = await usersCollection.insertOne(newUser);
-      return res.send(userResult);
-    }
-  } catch (error) {
-    console.log(error);
-  }
-});
-
 app.get("/", (req, res) => {
   res.send("server is running");
 });
