@@ -81,6 +81,38 @@ app.put("/update-task-status/:id", async (req, res) => {
   }
 })
 
+app.get("/view-task/:id", async (req, res) => {
+  try {
+    const id = req.params.id;
+    const query = {_id: new ObjectId(id)}
+    const result = await newTasksCollection.findOne(query);
+    res.send(result);
+  } catch (error) {
+    console.log(error);
+  }
+});
+
+
+app.put("/update-task/:id", async (req, res) => {
+  try{
+    const id = req.params.id;
+    const updatedTask = req.body;
+    const filter = {_id: new ObjectId(id)};
+    const updateTaskStatus = {
+      $set: {
+        title: updatedTask.title,
+        description: updatedTask.description,
+        deadline: updatedTask.deadline,
+        priority: updatedTask.priority
+      }
+    }
+    const result = await newTasksCollection.updateOne(filter, updateTaskStatus)
+    res.send(result)
+  } catch(error) {
+    console.log(error)
+  }
+})
+
 app.delete("/delete-task/:id", async(req, res) => {
   try{
     const id = req.params.id;
